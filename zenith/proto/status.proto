@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package zenith_status;
+
+option java_multiple_files = true;
+option java_package = "com.serpentos.zenith";
+option java_outer_classname = "StatusProto";
+
+// The Zenith service definition.
+service ZStatus {
+    rpc GetStatus (ZStatusRequest) returns (ZStatusResponse) {}
+}
+
+message ZStatusRequest {}
+
+message ZStatusResponse {
+    string message = 1;
+}

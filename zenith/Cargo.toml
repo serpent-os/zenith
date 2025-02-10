@@ -3,4 +3,10 @@ name = "zenith"
 version = "0.1.0"
 edition = "2021"
 
+[build-dependencies]
+tonic-build.workspace = true
+
 [dependencies]
+prost.workspace = true
+tonic.workspace = true
+tokio = { workspace = true, features = ["full"] }

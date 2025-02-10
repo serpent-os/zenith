@@ -3,5 +3,5 @@
 // SPDX-License-Identifier: MPL-2.0
 
 fn main() {
-    println!("Hello, world!");
+    tonic_build::compile_protos("proto/status.proto").expect("Failed to compile status.proto");
 }
