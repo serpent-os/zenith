@@ -15,4 +15,7 @@ message ZStatusRequest {}
 
 message ZStatusResponse {
     string message = 1;
+    uint64 uptime = 2;
+    string version = 3;
+    uint32 version_code = 4;
 }

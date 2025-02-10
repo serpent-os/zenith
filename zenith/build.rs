@@ -3,5 +3,6 @@
 // SPDX-License-Identifier: MPL-2.0
 
 fn main() {
+    println!("cargo:rerun-if-changed=proto/status.proto");
     tonic_build::compile_protos("proto/status.proto").expect("Failed to compile status.proto");
 }
