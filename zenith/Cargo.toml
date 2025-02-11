@@ -9,4 +9,7 @@ tonic-build.workspace = true
 [dependencies]
 prost.workspace = true
 tonic.workspace = true
-tokio = { workspace = true, features = ["full"] }
+tokio = { workspace = true, features = ["full", "tracing"] }
+tracing-futures.workspace = true
+tracing.workspace = true
+tracing-subscriber = { workspace = true, features = ["fmt", "ansi", "env-filter"]}

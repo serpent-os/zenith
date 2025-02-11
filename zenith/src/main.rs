@@ -2,14 +2,21 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
+use std::{fmt, net::SocketAddr};
+
 use status_server::{ZStatus, ZStatusRequest, ZStatusResponse, ZStatusServer};
+use tokio::signal;
 use tonic::transport::Server;
+use tracing::{debug, event, instrument, warn, Level};
+use tracing_subscriber::fmt::format::Format;
+use tracing_subscriber::EnvFilter;
 
 pub mod status_server {
     tonic::include_proto!("zenith_status");
     pub use z_status_server::*;
 }
 
+#[derive(Debug)]
 struct MyStatusService {
     started: std::time::Instant,
 }
@@ -24,6 +31,7 @@ impl Default for MyStatusService {
 
 #[tonic::async_trait]
 impl ZStatus for MyStatusService {
+    #[instrument]
     async fn get_status(
         &self,
         _request: tonic::Request<ZStatusRequest>,
@@ -39,18 +47,55 @@ impl ZStatus for MyStatusService {
     }
 }
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let addr = "[::1]:50051".parse().unwrap();
+async fn run_server<S>(address: S) -> Result<(), Box<dyn std::error::Error>>
+where
+    S: Into<SocketAddr> + fmt::Debug,
+{
     let imp = MyStatusService::default();
+    let address = address.into();
 
+    event!(Level::INFO, ?address, "Starting server 🚀");
     Server::builder()
         .add_service(ZStatusServer::new(imp))
-        .serve(addr)
+        .serve_with_shutdown(address, shutdown_handler())
         .await?;
 
-    println!("Hello, world!");
     Ok(())
+}
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let f = Format::default()
+        .pretty()
+        .with_ansi(true)
+        .with_timer(tracing_subscriber::fmt::time::time())
+        .with_file(false)
+        .with_line_number(false)
+        .with_target(true)
+        .with_thread_ids(false);
+
+    let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("trace"));
+
+    let r = tracing_subscriber::fmt()
+        .event_format(f)
+        .with_env_filter(filter)
+        .finish();
+
+    tracing::subscriber::set_global_default(r)?;
+
+    debug!("Launching Zenith");
+
+    let addr: SocketAddr = "[::1]:50051".parse()?;
+    run_server(addr).await?;
+
+    Ok(())
+}
+
+async fn shutdown_handler() {
+    signal::ctrl_c()
+        .await
+        .expect("Failed to listen for ctrl-c event");
+    warn!("Received shutdown signal, shutting down server");
 }
 
 #[cfg(test)]
