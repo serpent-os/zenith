@@ -2,14 +2,22 @@
 resolver = "2"
 
 members = [
+    "zcli",
     "zenith",
 ]
 
+default-members = [
+    "zenith"
+]
+
 [workspace.dependencies]
+color-eyre = "0.6.3"
 prost = "0.13"
 tracing = "0.1.41"
+tracing-error = "0.2.1"
 tracing-futures = "0.2.5"
 tracing-subscriber = "0.3.19"
 tonic-build = "0.12.3"
 tonic = "0.12.3"
 tokio = "1.43.0"
+thiserror = "1.0.41"

@@ -1,0 +1,18 @@
+[package]
+name = "zcli"
+version = "0.1.0"
+edition = "2021"
+
+[build-dependencies]
+tonic-build.workspace = true
+
+[dependencies]
+color-eyre = { workspace = true, features = ["capture-spantrace"] }
+prost.workspace = true
+thiserror.workspace = true
+tonic.workspace = true
+tokio = { workspace = true, features = ["full", "tracing"] }
+tracing-error.workspace = true
+tracing-futures.workspace = true
+tracing.workspace = true
+tracing-subscriber = { workspace = true, features = ["fmt", "ansi", "env-filter"]}

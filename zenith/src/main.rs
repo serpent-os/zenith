@@ -7,7 +7,7 @@ use std::{fmt, net::SocketAddr};
 use status_server::{ZStatus, ZStatusRequest, ZStatusResponse, ZStatusServer};
 use tokio::signal;
 use tonic::transport::Server;
-use tracing::{debug, event, instrument, warn, Level};
+use tracing::{debug, event, warn, Level};
 use tracing_subscriber::fmt::format::Format;
 use tracing_subscriber::EnvFilter;
 
@@ -31,10 +31,9 @@ impl Default for MyStatusService {
 
 #[tonic::async_trait]
 impl ZStatus for MyStatusService {
-    #[instrument]
     async fn get_status(
         &self,
-        _request: tonic::Request<ZStatusRequest>,
+        request: tonic::Request<ZStatusRequest>,
     ) -> Result<tonic::Response<ZStatusResponse>, tonic::Status> {
         let response = ZStatusResponse {
             message: "Service is running".to_string(),
@@ -43,6 +42,9 @@ impl ZStatus for MyStatusService {
             version_code: 0,
         };
 
+        let whom = request.remote_addr();
+
+        event!(Level::INFO, ?whom, "Received request");
         Ok(tonic::Response::new(response))
     }
 }
@@ -74,7 +76,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .with_target(true)
         .with_thread_ids(false);
 
-    let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("trace"));
+    let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
 
     let r = tracing_subscriber::fmt()
         .event_format(f)
