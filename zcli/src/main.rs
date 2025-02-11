@@ -2,13 +2,11 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-use std::backtrace::Backtrace;
-use std::error::Error;
 use std::net::SocketAddr;
 
 use thiserror::Error;
 use tonic::transport;
-use tracing::{debug, info, instrument};
+use tracing::{info, instrument};
 use tracing_error::ErrorLayer;
 use tracing_subscriber::fmt::format::Format;
 use tracing_subscriber::layer::SubscriberExt;
